@@ -37,29 +37,20 @@ pipeline {
             steps {
                 echo 'Building and Pushing Docker Image'
                 script {
+                    def previousBuildId = "${env.BUILD_ID.toInteger() - 1}"
                     def newBuildId = "${env.BUILD_ID.toInteger()}"
-                    def previousBuildId = "${newBuildId.toInteger() - 1}"
 
-                    // Docker 이미지 빌드
-                    dockerImage = docker.build("${env.fullImageName}:latest")
-
+                    // 새로운 이미지 빌드 및 푸시
+                    dockerImage = docker.build("${env.fullImageName}:${newBuildId}")
                     docker.withRegistry('', registryCredential) {
-                        // 1. 이전 버전의 이미지를 previousBuildId로 태그 변경
-                        sh "docker tag ${env.fullImageName}:latest ${env.fullImageName}:${previousBuildId} || true"
-
-                        // 2. 원격 도커 허브에서 latest 태그의 이미지 삭제
-                        sh "docker rmi ${env.fullImageName}:latest || true"
-
-                        // 3. 이전 버전의 이미지를 푸시
-                        sh "docker push ${env.fullImageName}:${previousBuildId} || true"
-
-                        // 4. 새로 생성되는 도커 이미지의 latest 태그를 푸시
                         dockerImage.push()
                     }
+
+                    // 이전 빌드 ID 태그 이미지 삭제
+                    sh "docker rmi ${env.fullImageName}:${previousBuildId} || true"
                 }
             }
         }
-
 
     }
 
