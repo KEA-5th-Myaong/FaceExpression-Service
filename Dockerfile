@@ -6,11 +6,20 @@ WORKDIR /app
 
 # 필수 시스템 패키지 설치
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    libgtk-3-dev \
+    libboost-python-dev \
+    libboost-system-dev \
+    libboost-filesystem-dev \
     libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
 # 필수 패키지를 설치하기 위한 requirements.txt 파일을 복사
 COPY requirements.txt .
+
+# pip 업데이트
+RUN pip install --upgrade pip
 
 # 의존성 설치
 RUN pip install --no-cache-dir -r requirements.txt
