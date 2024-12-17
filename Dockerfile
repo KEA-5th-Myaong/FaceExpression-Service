@@ -4,6 +4,11 @@ FROM python:3.9-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
+# 필수 시스템 패키지 설치
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
 # 필수 패키지를 설치하기 위한 requirements.txt 파일을 복사
 COPY requirements.txt .
 
